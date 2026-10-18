@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Student API Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        button { padding: 8px 14px; margin: 5px; cursor: pointer; }
+        input { padding: 8px; }
+        #result, #academicResult { margin-top: 20px; padding: 10px; border: 1px solid #cccccc; }
+    </style>
+</head>
+<body>
+    <h1>Student API Interface</h1>
+    <button onclick="loadStudent()">Load Student Information</button>
+    <div id="result"></div>
+
+    <hr>
+    <h2>Greeting API</h2>
+    <input type="text" id="nameInput" placeholder="Enter your first name">
+    <button onclick="sayHello()">Say Hello</button>
+    <p id="greeting"></p>
+
+    <hr>
+    <h2>Academic Profile API</h2>
+    <p>Load your program, year, section, and student ID from <code>/academic</code>.</p>
+    <button onclick="loadAcademic()">Load Academic Profile</button>
+    <div id="academicResult"></div>
+
+    <script>
+        function displayValues(data) {
+            return `<p><b>Student ID:</b> ${data.student_id}</p>` +
+                `<p><b>Name:</b> ${data.name || "Not provided"}</p>` +
+                `<p><b>Program:</b> ${data.program}</p>` +
+                `<p><b>Year:</b> ${data.year}</p>` +
+                `<p><b>Section:</b> ${data.section}</p>`;
+        }
+
+        function loadStudent() {
+            fetch("/student")
+                .then(response => {
+                    if (!response.ok) throw new Error("Request failed");
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById("result").innerHTML = displayValues(data);
+                })
+                .catch(() => {
+                    document.getElementById("result").textContent = "Unable to retrieve data.";
+                });
+        }
+
+        function sayHello() {
+            const name = document.getElementById("nameInput").value.trim();
+            fetch("/hello?name=" + encodeURIComponent(name))
+                .then(response => {
+                    if (!response.ok) throw new Error("Request failed");
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById("greeting").innerText = data.message;
+                })
+                .catch(() => {
+                    document.getElementById("greeting").innerText = "Unable to retrieve greeting.";
+                });
+        }
+
+        function loadAcademic() {
+            fetch("/academic")
+                .then(response => {
+                    if (!response.ok) throw new Error("Request failed");
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById("academicResult").innerHTML = displayValues(data);
+                })
+                .catch(() => {
+                    document.getElementById("academicResult").textContent = "Unable to retrieve academic profile.";
+                });
+        }
+    </script>
+</body>
+</html>
